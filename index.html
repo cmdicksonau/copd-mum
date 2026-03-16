@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>COPD Symptom Tracker</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"
+      integrity="sha384-OLBgp1GsljhM2TJ+sbHjaiH9txEUvgdDTAzHv2P24donTt6/529l+9Ua0vFImLlb"
+      crossorigin="anonymous"
+      defer
+    ></script>
+    <script type="module" src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="container">
+      <header class="app-header">
+        <h1>COPD Symptom Tracker</h1>
+        <p class="subtitle">Track symptoms daily for 2 weeks and bring the completed tracker to your healthcare appointment.</p>
+      </header>
+
+      <section class="panel" aria-labelledby="daily-entry-heading">
+        <h2 id="daily-entry-heading">1) Daily Entry Form</h2>
+        <form id="entry-form" class="stack" novalidate>
+          <div class="field-row">
+            <label for="entry-date">Date</label>
+            <input id="entry-date" name="date" type="date" required />
+          </div>
+
+          <fieldset>
+            <legend>Symptoms</legend>
+            <div class="checkbox-grid">
+              <label><input id="symptom-cough" type="checkbox" /> Persistent cough</label>
+              <label><input id="symptom-wheezing" type="checkbox" /> Wheezing (abnormal high or low pitched sounds when breathing)</label>
+              <label><input id="symptom-dyspnea" type="checkbox" /> Difficulty breathing during normal daily activity</label>
+              <label><input id="symptom-infection" type="checkbox" /> Respiratory infection (including increased phlegm / mucus)</label>
+            </div>
+          </fieldset>
+
+          <div class="field-row">
+            <label for="reliever-uses">Number of reliever inhaler uses</label>
+            <input id="reliever-uses" name="relieverUses" type="number" min="0" required value="0" />
+          </div>
+
+          <div class="field-row">
+            <label for="entry-notes">Notes / reflection</label>
+            <textarea id="entry-notes" name="notes" rows="4" placeholder="How symptoms affect day-to-day life and questions for your healthcare professional."></textarea>
+          </div>
+
+          <button type="submit" class="btn primary controls-only">Save daily entry</button>
+        </form>
+      </section>
+
+      <section class="panel" aria-labelledby="analytics-heading">
+        <h2 id="analytics-heading">2) Visual Analytics Dashboard</h2>
+        <div class="chart-wrap">
+          <canvas id="reliever-chart" aria-label="Reliever inhaler uses over time" role="img"></canvas>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="history-heading">
+        <h2 id="history-heading">3) Historical Log + Export/Print</h2>
+        <div class="history-toolbar controls-only">
+          <div class="toggle-group" role="group" aria-label="Date filter">
+            <button id="filter-14" type="button" class="btn secondary" data-filter="14">Last 14 days</button>
+            <button id="filter-all" type="button" class="btn secondary" data-filter="all">All time</button>
+          </div>
+          <div class="action-group">
+            <button id="export-csv" type="button" class="btn primary">Export to CSV</button>
+            <button id="print-pdf" type="button" class="btn primary">Print / Save as PDF</button>
+          </div>
+        </div>
+
+        <div id="print-date-range" class="print-only"></div>
+
+        <div class="table-wrap">
+          <table id="history-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Persistent cough</th>
+                <th>Wheezing</th>
+                <th>Difficulty breathing</th>
+                <th>Respiratory infection</th>
+                <th>Reliever inhaler uses</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel controls-only" aria-labelledby="sync-heading">
+        <h2 id="sync-heading">4) Sync &amp; Security</h2>
+        <div class="sync-grid">
+          <div class="stack">
+            <h3>Unlock</h3>
+            <label for="passphrase">Passphrase</label>
+            <input id="passphrase" type="password" autocomplete="new-password" />
+            <div class="action-group">
+              <button id="unlock-btn" type="button" class="btn primary">Unlock</button>
+              <button id="lock-btn" type="button" class="btn secondary">Lock</button>
+            </div>
+          </div>
+
+          <div class="stack">
+            <h3>Gist Settings</h3>
+            <label for="gist-token">GitHub token</label>
+            <input id="gist-token" type="password" autocomplete="off" />
+            <label><input id="remember-token" type="checkbox" /> Remember token on this device</label>
+            <label for="gist-id">Gist ID (optional first time)</label>
+            <input id="gist-id" type="text" placeholder="Will be created if empty" />
+            <label for="gist-filename">Filename</label>
+            <input id="gist-filename" type="text" value="copd-symptom-tracker.json.enc" />
+            <label><input id="autosync" type="checkbox" /> Auto-sync after save</label>
+            <div class="action-group">
+              <button id="pull-btn" type="button" class="btn secondary">Pull</button>
+              <button id="push-btn" type="button" class="btn primary">Push</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="status-row">
+          <strong>Status:</strong>
+          <span id="sync-status">Locked. Sync disabled.</span>
+        </div>
+
+        <div id="conflicts-panel" class="stack" hidden>
+          <h3>Conflicts</h3>
+          <ul id="conflicts-list" class="conflicts-list"></ul>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" aria-live="polite" role="status"></div>
+
+    <footer>
+      If you experience severe breathlessness, seek immediate medical assistance.
+    </footer>
+  </body>
+</html>
