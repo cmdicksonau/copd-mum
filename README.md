@@ -1,68 +1,142 @@
-# COPD Symptom Tracker
+# COPD Action Plan & Care Manager
 
-A static, local-first COPD Symptom Tracker for GitHub Pages with encrypted cross-device sync through GitHub Gists.
+A premium, accessible, and clinically compliant mobile-first web application designed to help patients monitor and manage Chronic Obstructive Pulmonary Disease (COPD) exacerbations. The application uses a traffic-light zone system (Green, Amber, Red) aligned with standard clinical action plans to deliver visual guidance, preventative tasks, and emergency warnings.
 
-## Features
+---
 
-- Daily symptom tracking for a 2-week healthcare appointment workflow
-- Required symptom checkboxes:
-  1. Persistent cough
-  2. Wheezing (abnormal high or low pitched sounds when breathing)
-  3. Difficulty breathing during normal daily activity
-  4. Respiratory infection (including increased phlegm / mucus)
-- Notes/reflection area for day-to-day impact and questions
-- Local-first persistence (IndexedDB with localStorage fallback)
-- End-to-end encrypted sync payloads via GitHub Gists only
-- Chart.js analytics for reliever inhaler use trends
-- Historical table, 14-day/all-time filtering, CSV export, print/PDF formatting
-- Conflict detection + manual local/remote resolution
+## 🏗️ System Architecture
 
-## Deploy on GitHub Pages
+The application is structured as a zero-dependency, highly responsive Single Page Application (SPA). It uses vanilla ES6 JavaScript for logic and state management, coupled with a strict CSS design system calibrated for visual accessibility (WCAG 2.1 AA compliant).
 
-1. Push this repository to GitHub.
-2. Go to **Settings → Pages**.
-3. Under **Build and deployment**, set:
-   - **Source**: Deploy from a branch
-   - **Branch**: `main` (or your default branch)
-   - **Folder**: `/root`
-4. Save and wait for Pages deployment.
+### Data Flow and Rendering Loop
+The app follows a unidirectional data flow pattern, using a manual reactivity loop to bind state to the DOM:
 
-## GitHub Token Requirements for Sync
+```mermaid
+graph TD
+    User([User Interaction]) -->|Triggers UI Events| Ctrl[COPDAppController]
+    Ctrl -->|Updates State Properties| State[(App State)]
+    State -->|Serializes state via saveState| LS[(localStorage)]
+    State -->|Triggers renderAll| Render[DOM Renderer]
+    Render -->|Updates DOM Nodes| User
+    
+    Auth[Firebase Auth Service] -->|onAuthStateChanged| Ctrl
+    Ctrl -->|Updates User Profile State| State
+```
 
-The app uses GitHub Gists via REST API v3.
+### Zone & Clinical State Machine
+The core of the logic revolves around the patient's symptomatic zones. The transition boundaries and lockouts follow strict clinical guidelines:
 
-- Classic PAT: enable **`gist`** scope.
-- Fine-grained PAT: grant **Gists: Read and Write** permissions.
+```mermaid
+stateDiagram-v2
+    [*] --> Green: Default State (Stable)
+    
+    Green --> Amber: Exacerbation Symptoms Logged
+    note right of Amber
+      - Increased breathlessness
+      - Change in sputum color
+      - Fever present
+    end note
+    
+    Green --> Red: Emergency Symptoms Logged
+    Amber --> Red: Emergency Symptoms Logged
+    note right of Red
+      - Too breathless to talk
+      - Chest pain
+      - Blue tint on lips/nails
+      - Fast heartbeat
+    end note
+    
+    Amber --> Green: Reset Symptoms (Confirmed)
+    Red --> Green: Emergency Reset (Confirmed Safe)
+```
 
-The token is kept in memory by default. If you enable **Remember token on this device**, the token is encrypted locally with your passphrase before storage.
+---
 
-## Security Model
+## 📊 Application State Schema
 
-- All remote health data is encrypted client-side before upload.
-- Encryption stack:
-  - KDF: PBKDF2 (SHA-256), 250,000 iterations, per-envelope random salt
-  - Cipher: AES-GCM with random IV
-- Only encrypted envelope JSON is stored in the Gist file.
-- The passphrase is never stored.
-- Local data is stored in IndexedDB (fallback localStorage).
-- If token persistence is enabled, token is stored only as encrypted ciphertext.
+All state is managed centrally within the `COPDAppController` class under `this.state` and persisted locally.
 
-## Troubleshooting
+| State Path | Type | Description |
+| :--- | :--- | :--- |
+| `user` | `Object \| null` | Authenticated Firebase User profile details (`uid`, `isAnonymous`, `displayName`, `email`, `photoURL`). |
+| `currentZone` | `'green' \| 'amber' \| 'red'` | Current severity status representing the clinical zone. |
+| `patientInfo` | `Object` | Basic details (`name`, `address`, `emergencyContactName`, `emergencyContactPhone`, `co2Retainer`). |
+| `dailyStatus` | `Object` | Symptoms logging checklists (breathlessness status, cough, mucus color/changes, fever, exercise tolerance, and red flags). |
+| `medications` | `Object` | Compliance tracking (maintenance medication, reliever puff counts, rescue pack activation status, steroids/antibiotics doses). |
+| `rehabExercises`| `Object` | Pulmonary rehabilitation daily exercise compliance (`completedToday`). |
+| `hospitalChecklist`| `Object` | Transition-of-care checklist for patients post-discharge (GP appointments, inhaler techniques, vaccines, advance care planning). |
+| `logs` | `Array<Object>` | Ephemeral audit trail of telemetry events and warnings logged during the current day. |
 
-- **Wrong passphrase**
-  - Pull/decrypt fails. Re-enter the correct passphrase and unlock again.
-- **Token revoked or missing scopes**
-  - Push/pull fails with GitHub API auth error. Create a token with required permissions.
-- **Gist not found**
-  - Confirm Gist ID and filename exactly match your sync file.
-- **Rate limits**
-  - GitHub may return API limit errors. Wait and retry.
+---
 
-## Privacy Warning
+## 🔒 Firebase Security & Configuration
 
-- Do not commit tokens, decrypted exports, or copied plaintext health data into git.
-- Treat CSV exports and printed files as sensitive health information.
+The application uses Firebase services to manage user authentication and secure underlying resources.
 
-## Disclaimer
+### 1. Authentication Configuration
+Firebase Authentication is enabled in the Firebase console and configured in `firebase.json`.
+- **Google Sign-In**: Enables patients to sign in using their Google credentials, auto-filling name and profile data.
+- **Anonymous Authentication**: Allows guest access for immediate, low-friction usage while maintaining a persistent session identifier.
 
-This tool is for symptom tracking and record-keeping only. It does not provide medical advice.
+### 2. Firestore Security Rules
+All read and write access to the Cloud Firestore database is blocked by default since the client application does not store data on remote Firestore collections:
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+```
+
+### 3. Cloud Storage Security Rules
+Cloud Storage access is restricted to authenticated users. Only requests containing a valid `request.auth` token can read or write assets:
+```javascript
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+```
+
+---
+
+## 🛠️ Developer Setup & Operations
+
+### Prerequisites
+Make sure you have [Node.js](https://nodejs.org/) installed. No local node dependencies are required for running the web application, but `firebase-tools` is needed for local simulation and deployment.
+
+### Running the App Locally
+1. Start a local HTTP server in the root directory:
+   ```bash
+   npx -y serve@latest .
+   ```
+2. Open your browser and navigate to `http://localhost:3000`.
+
+### Validating Firebase Configurations
+To dry-run rules, check configurations, and run compilation validation:
+```bash
+# Verify Firebase configurations and Security Rules compile correctly
+npx -y firebase-tools@latest deploy --only firestore:rules,storage --dry-run --project copd-care-manager-53f3
+```
+
+### Deploying to Firebase Hosting
+To release the code and security rules to production:
+```bash
+# Deploy all hosting assets and rules
+npx -y firebase-tools@latest deploy --project copd-care-manager-53f3
+```
+
+---
+
+## ♿ Visual & Accessibility Compliance
+
+The interface strictly conforms to the guidelines defined in the [DESIGN.md](file:///c:/Users/mystg/Documents/copd/DESIGN.md) system:
+- **Typography**: Display/headlines are styled with Satoshi; high-density telemetry statistics and metrics are rendered in **JetBrains Mono** for clear diagnostic reading.
+- **Target Sizes**: Buttons and interactive controls enforce a minimum touch target size of `48px` to facilitate navigation for users with motor tremors or tactile difficulty.
+- **Contrast**: Contrast ratios conform to **WCAG 2.1 AA** specifications across all zones, keeping text readable against light background tints (e.g., Green `#F4F9E4` vs Dark Green `#2A3C00`).
