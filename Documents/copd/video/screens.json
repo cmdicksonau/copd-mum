@@ -1,0 +1,88 @@
+{
+  "projectName": "COPD Manager",
+  "projectId": "projects/7228463483953964686",
+  "videoConfig": {
+    "fps": 30,
+    "width": 1920,
+    "height": 1080
+  },
+  "screens": [
+    {
+      "id": "1",
+      "screenId": "b96a2c76d2be4de990ec58ba5abcb690",
+      "title": "Welcome & Onboarding",
+      "description": "Accessible entry portal supporting Google SSO and guest authentication routes.",
+      "imagePath": "assets/screens/welcome_login.png",
+      "width": 780,
+      "height": 1768,
+      "duration": 6,
+      "transitionType": "fade"
+    },
+    {
+      "id": "2",
+      "screenId": "442be5b07c3b4529a7d25cc33a187fbe",
+      "title": "Main Hub Navigation",
+      "description": "Central dashboard linking directly to vital plans and daily trackers.",
+      "imagePath": "assets/screens/home_navigation.png",
+      "width": 780,
+      "height": 3690,
+      "duration": 6,
+      "transitionType": "fade"
+    },
+    {
+      "id": "3",
+      "screenId": "fd1893baecd7466f947f2046a560f080",
+      "title": "Daily Logging Dashboard",
+      "description": "Frictionless checks for daily medication adherence and respiratory status.",
+      "imagePath": "assets/screens/functional_prototype.png",
+      "width": 780,
+      "height": 3490,
+      "duration": 6,
+      "transitionType": "fade"
+    },
+    {
+      "id": "4",
+      "screenId": "9810ce6f9c114ddca9e9cd895002624e",
+      "title": "Triage Action Protocol",
+      "description": "Status-driven guidelines divided into Green, Amber, and Red zones.",
+      "imagePath": "assets/screens/my_prototype.png",
+      "width": 780,
+      "height": 3490,
+      "duration": 6,
+      "transitionType": "fade"
+    },
+    {
+      "id": "5",
+      "screenId": "92ec6b0a7d144f1e9bef5f381f4044d7",
+      "title": "Clinician Action Plan",
+      "description": "Comprehensive, signed plan detailing emergency numbers and clinical advice.",
+      "imagePath": "assets/screens/action_plan.png",
+      "width": 780,
+      "height": 5808,
+      "duration": 6,
+      "transitionType": "fade"
+    },
+    {
+      "id": "6",
+      "screenId": "c77aee0b4c18499a976ddbbb36f7fc97",
+      "title": "Symptom Trends & Analytics",
+      "description": "Historical logs tracking peak flow, oxygen levels, and triage symptoms.",
+      "imagePath": "assets/screens/visual_analytics.png",
+      "width": 780,
+      "height": 2652,
+      "duration": 6,
+      "transitionType": "fade"
+    },
+    {
+      "id": "7",
+      "screenId": "46924e72e626486c81c2c737e8e8e3cf",
+      "title": "Historical Logs List",
+      "description": "Searchable record archive for clinician references during consults.",
+      "imagePath": "assets/screens/historical_log.png",
+      "width": 780,
+      "height": 2474,
+      "duration": 6,
+      "transitionType": "fade"
+    }
+  ]
+}

@@ -1,0 +1,2014 @@
+<!DOCTYPE html>
+
+<html class="" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>COPD Action Plan &amp; Care Manager</title>
+<!-- Firebase SDK Compat -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    projectId: "copd-care-manager-53f3",
+    appId: "1:662566240545:web:cd4ed07eb97290a86b7e60",
+    storageBucket: "copd-care-manager-53f3.firebasestorage.app",
+    apiKey: "AIzaSyCoQynFrspsAWVYPhcAP64zf-C3tGqOOz0",
+    authDomain: "copd-care-manager-53f3.firebaseapp.com",
+    messagingSenderId: "662566240545"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
+<style>
+    /* -------------------------------------------------------------
+       CSS DESIGN SYSTEM & ACCESSIBILITY TOKENS (WCAG 2.1 AA Compliant)
+       ------------------------------------------------------------- */
+    :root {
+      /* Zone Specific Colors (Contrast Calibrated) */
+      --zone-green-bg: #F4F9E4;
+      --zone-green-accent: #C2DD10;
+      --zone-green-dark: #2A3C00;
+      
+      --zone-amber-bg: #FFF7EE;
+      --zone-amber-accent: #EE954E;
+      --zone-amber-dark: #5B2B00;
+      
+      --zone-red-bg: #FFF0F0;
+      --zone-red-accent: #C00000;
+      --zone-red-contrast: #FFFFFF;
+      --zone-red-dark: #4A0000;
+
+      /* Main Semantic Colors */
+      --bg-primary: #FAFAFA;
+      --bg-card: #FFFFFF;
+      --text-primary: #1F2022;
+      --text-secondary: #53565A;
+      --border-color: #D2D4D6;
+      --primary-blue: #0A58CA;
+      --primary-blue-hover: #084298;
+      
+      /* Typography */
+      --font-family: Arial, sans-serif;
+      --font-size-base: 18px; /* High Accessibility Standard */
+      --line-height-base: 1.5;
+      
+      /* Target Sizing */
+      --touch-target-min: 48px;
+      --spacing-unit: 12px;
+      --transition-speed: 0.25s;
+    }
+
+    /* Reset & Base Rules */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      font-size: var(--font-size-base);
+      line-height: var(--line-height-base);
+      color: var(--text-primary);
+      background-color: var(--bg-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 72px; /* Space for bottom navigation */
+      transition: background-color var(--transition-speed) ease;
+    }
+
+    /* Screen Reader Only Utility */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    /* Focus styling for keyboard accessibility */
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+      outline: 4px solid var(--primary-blue);
+      outline-offset: 2px;
+    }
+
+    /* Header & State Indicator */
+    header {
+      background-color: var(--bg-card);
+      border-bottom: 2px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .top-navbar {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .app-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: var(--text-primary);
+    }
+
+    .telemetry-status {
+      display: flex;
+      align-items: center;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: var(--text-secondary);
+      background-color: #EBF1FA;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .telemetry-status::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background-color: #2B8A3E;
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+
+    /* State Zone Banners */
+    .zone-banner {
+      padding: 16px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.15rem;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid transparent;
+      transition: all var(--transition-speed) ease;
+    }
+
+    .zone-green {
+      background-color: var(--zone-green-bg);
+      color: var(--zone-green-dark);
+      border-bottom-color: var(--zone-green-accent);
+    }
+
+    .zone-amber {
+      background-color: var(--zone-amber-bg);
+      color: var(--zone-amber-dark);
+      border-bottom-color: var(--zone-amber-accent);
+    }
+
+    .zone-red {
+      background-color: var(--zone-red-accent);
+      color: var(--zone-red-contrast);
+      border-bottom-color: var(--zone-red-dark);
+    }
+
+    /* Container */
+    main {
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 16px;
+      flex: 1;
+    }
+
+    /* Typography Hierarchy (COPD-X Standardized) */
+    h1, h2, h3 {
+      margin-bottom: 12px;
+      color: var(--text-primary);
+      font-weight: 700;
+    }
+
+    h1 { font-size: 1.5rem; line-height: 1.2; }
+    h2 { font-size: 1.3rem; line-height: 1.3; }
+    h3 { font-size: 1.1rem; line-height: 1.4; }
+
+    p {
+      margin-bottom: 16px;
+      color: var(--text-secondary);
+    }
+
+    /* Cards */
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    }
+
+    .card.alert-card {
+      border-left: 6px solid var(--primary-blue);
+    }
+
+    /* Accessibility Button styling */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: var(--touch-target-min);
+      min-width: 120px;
+      padding: 12px 24px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: 2px solid transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-blue);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover, .btn-primary:active {
+      background-color: var(--primary-blue-hover);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      border-color: var(--primary-blue);
+      color: var(--primary-blue);
+    }
+
+    .btn-secondary:hover, .btn-secondary:active {
+      background-color: #EBF1FA;
+    }
+
+    .btn-danger {
+      background-color: var(--zone-red-accent);
+      color: #FFFFFF;
+      width: 100%;
+      font-size: 1.4rem;
+      padding: 18px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(192, 0, 0, 0.2);
+    }
+
+    .btn-danger:hover, .btn-danger:active {
+      background-color: #8C0000;
+    }
+
+    .btn-block {
+      display: flex;
+      width: 100%;
+    }
+
+    /* Navigation Menu (Bottom Navigation for easy mobile access) */
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 72px;
+      background-color: var(--bg-card);
+      border-top: 2px solid var(--border-color);
+      display: flex;
+      justify-content: space-around;
+      align-items: stretch;
+      z-index: 99;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      border-top: 4px solid transparent;
+      color: var(--text-secondary);
+      font-family: var(--font-family);
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      padding: 4px 0;
+      transition: all var(--transition-speed) ease;
+    }
+
+    .nav-item svg {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 4px;
+      fill: currentColor;
+    }
+
+    .nav-item:hover, .nav-item:focus {
+      color: var(--primary-blue);
+      background-color: #F8F9FA;
+    }
+
+    .nav-item.active {
+      color: var(--primary-blue);
+      border-top-color: var(--primary-blue);
+      background-color: #F0F4FC;
+    }
+
+    /* Views control */
+    .view-panel {
+      display: none;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .view-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Symptom Checker Options (Large checkbox/radio items) */
+    .choice-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .choice-item {
+      display: flex;
+      align-items: center;
+      min-height: var(--touch-target-min);
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      padding: 12px 16px;
+      cursor: pointer;
+      background-color: var(--bg-card);
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+      position: relative;
+    }
+
+    .choice-item:hover {
+      border-color: var(--primary-blue);
+      background-color: #F8F9FA;
+    }
+
+    .choice-item input[type="checkbox"],
+    .choice-item input[type="radio"] {
+      width: 28px;
+      height: 28px;
+      margin-right: 16px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .choice-text {
+      font-weight: bold;
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .choice-subtext {
+      font-size: 0.9rem;
+      font-weight: normal;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* High alert choice item */
+    .choice-item.danger-option {
+      border-color: #FAB6B6;
+    }
+
+    .choice-item.danger-option:hover {
+      border-color: var(--zone-red-accent);
+      background-color: #FFF0F0;
+    }
+
+    /* Checklists (Hospital continuity check) */
+    .checklist-list {
+      list-style: none;
+    }
+
+    .checklist-row {
+      display: flex;
+      align-items: flex-start;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .checklist-row:last-child {
+      border-bottom: none;
+    }
+
+    .checklist-check {
+      width: 28px;
+      height: 28px;
+      margin-right: 16px;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .checklist-details {
+      flex: 1;
+    }
+
+    .checklist-title {
+      font-weight: bold;
+      font-size: 1.05rem;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .checklist-desc {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .checklist-subfield {
+      margin-top: 8px;
+      display: none;
+      animation: slideDown 0.2s ease-out;
+    }
+
+    .checklist-subfield.active {
+      display: block;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Text Inputs */
+    .input-field {
+      width: 100%;
+      min-height: var(--touch-target-min);
+      padding: 12px;
+      font-size: 1rem;
+      font-family: var(--font-family);
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      margin-bottom: 12px;
+      background-color: var(--bg-card);
+    }
+
+    .input-field:focus {
+      border-color: var(--primary-blue);
+    }
+
+    .label-text {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+    }
+
+    /* Modals (Tool Preambles & Validation Confirmation) */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background-color: var(--bg-card);
+      border: 2px solid var(--text-primary);
+      border-radius: 8px;
+      max-width: 500px;
+      width: 100%;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      transform: scale(0.95);
+      transition: transform 0.2s ease;
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-body {
+      margin-bottom: 24px;
+      font-size: 1.05rem;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* Red Zone Screen Lockout Style */
+    body.emergency-locked {
+      padding-bottom: 0;
+      background-color: #300000;
+    }
+
+    body.emergency-locked header,
+    body.emergency-locked .nav-bar,
+    body.emergency-locked main:not(#emergency-view-wrapper) {
+      display: none !important;
+    }
+
+    #emergency-view-wrapper {
+      display: none;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    body.emergency-locked #emergency-view-wrapper {
+      display: block;
+      animation: pulseBg 3s infinite alternate;
+    }
+
+    @keyframes pulseBg {
+      0% { background-color: #2A0000; }
+      100% { background-color: #4A0000; }
+    }
+
+    .emergency-title-box {
+      background-color: var(--zone-red-accent);
+      color: #FFFFFF;
+      padding: 24px;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 24px;
+      border: 3px solid #FFFFFF;
+    }
+
+    .emergency-brief-card {
+      background-color: #FFFFFF;
+      border: 3px solid var(--zone-red-accent);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .emergency-meta-label {
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: var(--zone-red-accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .emergency-meta-val {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #000000;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+
+    .emergency-meta-val:last-child {
+      margin-bottom: 0;
+    }
+
+    .emergency-guideline-badge {
+      background-color: #F8D7DA;
+      color: #721C24;
+      border: 1px solid #F5C6CB;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      margin-top: 12px;
+    }
+
+    /* Logs view layout */
+    .log-item {
+      padding: 12px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .log-item:last-child {
+      border-bottom: none;
+    }
+
+    .log-meta {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.8rem;
+    }
+
+    .badge-green { background-color: var(--zone-green-bg); color: var(--zone-green-dark); }
+    .badge-amber { background-color: var(--zone-amber-bg); color: var(--zone-amber-dark); }
+    .badge-red { background-color: var(--zone-red-bg); color: var(--zone-red-accent); }
+
+    /* Settings inputs grid */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    /* Switch Style for CO2 Toggle */
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      background-color: var(--bg-card);
+      margin-bottom: 12px;
+    }
+
+    .toggle-info {
+      flex: 1;
+      padding-right: 16px;
+    }
+
+    .toggle-label {
+      font-weight: bold;
+      color: var(--text-primary);
+    }
+
+    .toggle-control {
+      width: 60px;
+      height: 34px;
+      position: relative;
+      display: inline-block;
+    }
+
+    .toggle-control input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary-blue);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+
+    /* Grid for quick dashboard buttons */
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    @media (min-width: 600px) {
+      .settings-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .action-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    /* -------------------------------------------------------------
+       LOGIN VIEW & GOOGLE SIGN-IN BUTTON STYLING
+       ------------------------------------------------------------- */
+    .login-container {
+      max-width: 420px;
+      margin: 60px auto;
+      padding: 32px 24px;
+      text-align: center;
+    }
+    
+    .login-header-logo {
+      margin-bottom: 24px;
+      display: inline-flex;
+      background-color: var(--zone-amber-bg);
+      border: 2px solid var(--zone-amber-accent);
+      padding: 16px;
+      border-radius: 50%;
+      color: var(--zone-amber-dark);
+    }
+    
+    .google-btn {
+      width: 100%;
+      min-height: var(--touch-target-min);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      padding: 12px 24px;
+      margin-top: 24px;
+      transition: background-color var(--transition-speed), transform 0.1s ease, box-shadow var(--transition-speed);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    
+    .google-btn:hover {
+      background-color: #F8FAFC;
+      border-color: #CBD5E1;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .google-btn:active {
+      transform: scale(0.98);
+      background-color: #F1F5F9;
+    }
+    
+    .google-icon {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .guest-btn {
+      margin-top: 16px;
+      width: 100%;
+      min-height: var(--touch-target-min);
+    }
+
+    /* Hide standard app content when unauthenticated */
+    body.unauthenticated header,
+    body.unauthenticated nav,
+    body.unauthenticated main > div:not(#view-login) {
+      display: none !important;
+    }
+
+    /* User Profile details styling */
+    .profile-user-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding: 16px;
+      border-radius: 12px;
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+    }
+
+    .profile-user-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--primary-blue);
+      background-color: #E2E8F0;
+    }
+
+    .profile-user-info h3 {
+      font-size: 1.1rem;
+      margin-bottom: 2px;
+      color: var(--text-primary);
+    }
+
+    .profile-user-info p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+<!-- -------------------------------------------------------------
+       APPLICATION HEADER (Zone Responsive Accent Banners)
+       ------------------------------------------------------------- -->
+<header>
+<div class="top-navbar">
+<div class="app-title" id="app-title-display">COPD Action Plan</div>
+<div class="telemetry-status" title="Active background diagnostics thread running checking thresholds.">Telemetry: Active</div>
+</div>
+<div class="zone-banner zone-green" id="dynamic-zone-banner" role="status">
+      My Symptoms Status: Stable (Green Zone)
+    </div>
+</header>
+<!-- -------------------------------------------------------------
+       EMERGENCY LOCK SCREEN (Locks standard DOM UI upon Red Alert)
+       ------------------------------------------------------------- -->
+<div id="emergency-view-wrapper">
+<div class="emergency-title-box">
+<h1 style="color: #FFFFFF; font-size: 2.2rem; margin-bottom: 8px;">EMERGENCY DETECTED</h1>
+<p style="color: #FFFFFF; font-size: 1.25rem; font-weight: bold; margin-bottom: 0;">
+        Follow instructions immediately.
+      </p>
+</div>
+<div style="margin-bottom: 24px;">
+<a class="btn btn-danger" href="tel:000" id="call-000-btn" onclick="appEngine.logEmergencyCall()">
+<span style="font-size: 1.8rem; display: block; font-weight: 900;">DIAL 000 NOW</span>
+<span style="font-size: 0.95rem; font-weight: normal; display: block; margin-top: 4px;">
+          (Ask for Ambulance)
+        </span>
+</a>
+</div>
+<div class="emergency-brief-card">
+<div class="emergency-meta-label">First Responder Medical Briefing</div>
+<div class="emergency-meta-val" id="emergency-spo2-instruction">
+        Target SpO₂ Range: 92% - 96%
+      </div>
+<div class="emergency-meta-val" id="emergency-retainer-status">
+        CO₂ Retainer: No
+      </div>
+<div class="emergency-guideline-badge">
+<strong>Source Directive:</strong> Grounded in Lung Foundation Australia COPD-X Guidelines. Titrate oxygen to targets.
+      </div>
+</div>
+<div class="emergency-brief-card">
+<div class="emergency-meta-label">My Information for Dispatcher</div>
+<div class="emergency-meta-label" style="font-size: 0.75rem; color: #53565A; margin-top: 10px;">My Address</div>
+<div class="emergency-meta-val" id="emergency-address-display">-- Address not set --</div>
+<div class="emergency-meta-label" style="font-size: 0.75rem; color: #53565A; margin-top: 10px;">Emergency Contact</div>
+<div class="emergency-meta-val" id="emergency-contact-display">-- Contact not set --</div>
+</div>
+<div style="text-align: center; margin-top: 32px;">
+<button class="btn btn-secondary" onclick="appEngine.confirmEmergencyReset()" style="border-color: #FFFFFF; color: #FFFFFF;">
+        I am safe (Reset App)
+      </button>
+</div>
+</div>
+<!-- -------------------------------------------------------------
+       MAIN APPLICATION WORKSPACES & VIEWS
+       ------------------------------------------------------------- -->
+<main>
+  <!-- VIEW 0: LOGIN & AUTHENTICATION -->
+  <div class="view-panel" id="view-login">
+    <div class="card login-container">
+      <div class="login-header-logo">
+        <svg style="width: 48px; height: 48px; fill: currentColor;" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+        </svg>
+      </div>
+      <h1 style="font-size: 1.8rem; margin-bottom: 8px;">COPD Self-Care Manager</h1>
+      <p style="color: var(--text-secondary); margin-bottom: 24px;">Please authenticate to access your self-management action plan and clinical telemetry logs.</p>
+      
+      <button class="google-btn" onclick="appEngine.loginWithGoogle()">
+        <svg class="google-icon" viewBox="0 0 24 24">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+        </svg>
+        Sign In with Google
+      </button>
+
+      <button class="btn btn-secondary guest-btn" onclick="appEngine.loginAsGuest()">
+        Continue as Guest (Anonymous)
+      </button>
+    </div>
+  </div>
+
+  <!-- VIEW 1: ACTION PLAN DASHBOARD -->
+<div class="view-panel active" id="view-dashboard">
+<div class="card" id="dashboard-zone-card">
+<!-- Dynamic content rendered by JS depending on State zone -->
+</div>
+<!-- Quick Actions Grid -->
+<div class="action-grid">
+<div class="card" style="margin-bottom: 0;">
+<h2 style="font-size: 1.15rem; border-bottom: 2px solid var(--border-color); padding-bottom: 6px; margin-bottom: 12px;">Daily Status Checks</h2>
+<button class="btn btn-primary btn-block" onclick="appEngine.navigateTo('logs')">
+            Check Symptoms Daily
+          </button>
+</div>
+<div class="card" style="margin-bottom: 0;">
+<h2 style="font-size: 1.15rem; border-bottom: 2px solid var(--border-color); padding-bottom: 6px; margin-bottom: 12px;">Hospital Discharge</h2>
+<button class="btn btn-secondary btn-block" onclick="appEngine.navigateTo('checklist')">
+            Hospital Stay Checklist
+          </button>
+</div>
+</div>
+</div>
+<!-- VIEW 2: DAILY SYMPTOM LOGGER & TELEMETRY INPUTS -->
+<div class="view-panel" id="view-logs">
+<h1 id="logger-heading">Daily Symptom Logger</h1>
+<p>Log your baseline symptoms below. The system checks details concurrently to assess flare-up warnings.</p>
+<div class="card">
+<h2>1. Breathing</h2>
+<div class="choice-group">
+<label class="choice-item">
+<input checked="" name="breath-symptom" onchange="appEngine.handleSymptomInput('breathlessness', 'usual')" type="radio" value="usual"/>
+<span class="choice-text">
+              Usual shortness of breath
+              <span class="choice-subtext">No change from my standard level.</span>
+</span>
+</label>
+<label class="choice-item">
+<input name="breath-symptom" onchange="appEngine.handleSymptomInput('breathlessness', 'worse')" type="radio" value="worse"/>
+<span class="choice-text">
+              More breathless than usual
+              <span class="choice-subtext">Requires extra reliever puffs or rest.</span>
+</span>
+</label>
+<label class="choice-item danger-option">
+<input name="breath-symptom" onchange="appEngine.handleSymptomInput('breathlessness', 'emergency')" type="radio" value="emergency"/>
+<span class="choice-text" style="color: var(--zone-red-accent);">
+              Severe breathlessness
+              <span class="choice-subtext">Too breathless to talk, or worsening very quickly.</span>
+</span>
+</label>
+</div>
+<h2>2. Coughing &amp; Mucus</h2>
+<div class="choice-group">
+<label class="choice-item">
+<input id="chk-cough-worse" onchange="appEngine.handleCheckboxInput('cough_worse', this.checked)" type="checkbox"/>
+<span class="choice-text">
+              Coughing more than usual
+              <span class="choice-subtext">Cough is persistent or deeper.</span>
+</span>
+</label>
+<label class="choice-item">
+<input id="chk-mucus-more" onchange="appEngine.handleCheckboxInput('mucus_more', this.checked)" type="checkbox"/>
+<span class="choice-text">
+              More mucus (sputum/phlegm) than usual
+              <span class="choice-subtext">Exceeds standard daily volume.</span>
+</span>
+</label>
+<label class="choice-item">
+<input id="chk-mucus-color" onchange="appEngine.handleCheckboxInput('mucus_color_changed', this.checked)" type="checkbox"/>
+<span class="choice-text">
+              Change in mucus color or consistency
+              <span class="choice-subtext">Mucus looks yellow, green, or thick.</span>
+</span>
+</label>
+</div>
+<h2>3. Fever &amp; General Activity</h2>
+<div class="choice-group">
+<label class="choice-item">
+<input id="chk-fever" onchange="appEngine.handleCheckboxInput('fever', this.checked)" type="checkbox"/>
+<span class="choice-text">
+              Presence of a fever (temperature)
+              <span class="choice-subtext">Feeling hot, cold, or shivery.</span>
+</span>
+</label>
+<label class="choice-item">
+<input id="chk-ex-hard" onchange="appEngine.handleCheckboxInput('exercise_harder', this.checked)" type="checkbox"/>
+<span class="choice-text">
+              Usual activities or exercises feel harder
+              <span class="choice-subtext">Unable to complete pulmonary rehab target tasks.</span>
+</span>
+</label>
+</div>
+</div>
+<!-- Critical Emergency Symptoms Checklist -->
+<div class="card" style="border: 2px solid var(--zone-red-accent); background-color: var(--zone-red-bg);">
+<h2 style="color: var(--zone-red-accent);">Critical Emergency Check</h2>
+<p>If you experience any of the following, check them and follow prompts:</p>
+<div class="choice-group">
+<label class="choice-item danger-option">
+<input id="chk-red-talk" onchange="appEngine.handleEmergencyCheck('tooBreathlessToTalk', this.checked)" type="checkbox"/>
+<span class="choice-text">Too breathless to talk, or breathe</span>
+</label>
+<label class="choice-item danger-option">
+<input id="chk-red-heart" onchange="appEngine.handleEmergencyCheck('fastHeartbeat', this.checked)" type="checkbox"/>
+<span class="choice-text">Fast or uneven heartbeat</span>
+</label>
+<label class="choice-item danger-option">
+<input id="chk-red-tint" onchange="appEngine.handleEmergencyCheck('blueTint', this.checked)" type="checkbox"/>
+<span class="choice-text">Blue or grey tint on lips or fingers</span>
+</label>
+<label class="choice-item danger-option">
+<input id="chk-red-chest" onchange="appEngine.handleEmergencyCheck('chestPain', this.checked)" type="checkbox"/>
+<span class="choice-text">Chest pain</span>
+</label>
+</div>
+</div>
+<!-- Clear Data buttons -->
+<div style="display: flex; gap: 12px; margin-bottom: 24px;">
+<button class="btn btn-secondary" onclick="appEngine.resetSymptomLogger()">Clear Checklist</button>
+<button class="btn btn-primary" onclick="appEngine.navigateTo('dashboard')">View Summary</button>
+</div>
+<!-- Log history display list -->
+<div class="card">
+<h2>Logged Checkpoints (Telemetry History)</h2>
+<div id="telemetry-logs-list" style="margin-top: 12px;">
+<!-- History rendered dynamically -->
+</div>
+</div>
+</div>
+<!-- VIEW 3: HOSPITAL STAY DISCHARGE CHECKLIST -->
+<div class="view-panel" id="view-checklist">
+<h1>My Hospital Stay Checklist</h1>
+<p>Ensure post-discharge safety and continuity safeguards. Mapped to Lung Foundation Australia (October 2025) targets.</p>
+<div class="card">
+<ul class="checklist-list">
+<!-- Item 1 -->
+<li class="checklist-row">
+<input class="checklist-check" id="chk-gp-followup" onchange="appEngine.handleChecklistChange('gpAppointment7Days', this.checked)" type="checkbox"/>
+<div class="checklist-details">
+<label class="checklist-title" for="chk-gp-followup">GP Follow-up Scheduled (Within 7 Days)</label>
+<div class="checklist-desc">Your GP needs to review your symptoms, medications, and clinical record within 7 days of discharge.</div>
+<div class="checklist-subfield" id="gp-date-subfield">
+<label class="label-text" for="input-gp-date">Appointment Date:</label>
+<input class="input-field" id="input-gp-date" onchange="appEngine.handleGPDateChange(this.value)" type="date"/>
+</div>
+</div>
+</li>
+<!-- Item 2 -->
+<li class="checklist-row">
+<input class="checklist-check" id="chk-action-plan" onchange="appEngine.handleChecklistChange('actionPlanStored', this.checked)" type="checkbox"/>
+<div class="checklist-details">
+<label class="checklist-title" for="chk-action-plan">Current COPD Action Plan Stored</label>
+<div class="checklist-desc">Confirm you have a physical or digital copy of your signed Action Plan easily accessible (e.g., on the fridge).</div>
+</div>
+</li>
+<!-- Item 3 -->
+<li class="checklist-row">
+<input class="checklist-check" id="chk-inhaler-tech" onchange="appEngine.handleChecklistChange('inhalerTechniqueVerified', this.checked)" type="checkbox"/>
+<div class="checklist-details">
+<label class="checklist-title" for="chk-inhaler-tech">Inhaler Device Technique Verified</label>
+<div class="checklist-desc">Verified by a pharmacist, nurse, or doctor before leaving the hospital to ensure maximum medication delivery.</div>
+</div>
+</li>
+<!-- Item 4 -->
+<li class="checklist-row">
+<input class="checklist-check" id="chk-rehab-referral" onchange="appEngine.handleChecklistChange('pulmonaryRehabReferral', this.checked)" type="checkbox"/>
+<div class="checklist-details">
+<label class="checklist-title" for="chk-rehab-referral">Pulmonary Rehabilitation Program Referral</label>
+<div class="checklist-desc">Check if you are referred to a Pulmonary Rehab program or physiotherapy-guided exercise regimen to support lung strength.</div>
+</div>
+</li>
+<!-- Item 5 -->
+<li class="checklist-row">
+<input class="checklist-check" id="chk-vaccines" onchange="appEngine.handleChecklistChange('vaccinations', this.checked)" type="checkbox"/>
+<div class="checklist-details">
+<label class="checklist-title" for="chk-vaccines">Vaccinations Compliance Checked</label>
+<div class="checklist-desc">Confirm with your nurse/GP that your vaccines are up to date: Influenza, Pneumococcal, and SARS-CoV-2 (COVID-19).</div>
+<div class="checklist-subfield" id="vaccine-subfield">
+<label style="display: flex; align-items: center; margin-bottom: 8px;">
+<input id="chk-vac-flu" onchange="appEngine.handleSubVaccineChange('influenza', this.checked)" style="width: 22px; height: 22px; margin-right: 12px;" type="checkbox"/>
+<span>Influenza (Annual)</span>
+</label>
+<label style="display: flex; align-items: center; margin-bottom: 8px;">
+<input id="chk-vac-pneumo" onchange="appEngine.handleSubVaccineChange('pneumococcal', this.checked)" style="width: 22px; height: 22px; margin-right: 12px;" type="checkbox"/>
+<span>Pneumococcal</span>
+</label>
+<label style="display: flex; align-items: center;">
+<input id="chk-vac-covid" onchange="appEngine.handleSubVaccineChange('covid19', this.checked)" style="width: 22px; height: 22px; margin-right: 12px;" type="checkbox"/>
+<span>SARS-CoV-2 (COVID-19 Booster)</span>
+</label>
+</div>
+</div>
+</li>
+<!-- Item 6 -->
+<li class="checklist-row">
+<input class="checklist-check" id="chk-advance-care" onchange="appEngine.handleChecklistChange('advanceCarePlanningChecked', this.checked)" type="checkbox"/>
+<div class="checklist-details">
+<label class="checklist-title" for="chk-advance-care">Advance Care Planning Consultation</label>
+<div class="checklist-desc">For patients with advanced stages of COPD, ensure discussions concerning palliative care and advance care directives are logged.</div>
+</div>
+</li>
+</ul>
+</div>
+<div style="margin-bottom: 24px;">
+<button class="btn btn-primary" onclick="appEngine.navigateTo('dashboard')">View Summary</button>
+</div>
+</div>
+<!-- VIEW 4: PATIENT PROFILE & STATE CONFIGURATION -->
+<div class="view-panel" id="view-profile">
+<h1>My Medical Profile</h1>
+<p>Configure critical data parameters. Ensure these are accurate to support accurate medical directives.</p>
+<!-- Firebase Auth User Info -->
+<div class="card" id="user-profile-card" style="display: none;">
+  <h2>Account Information</h2>
+  <div class="profile-user-card">
+    <img id="user-avatar" class="profile-user-avatar" src="" alt="Profile picture">
+    <div class="profile-user-info">
+      <h3 id="user-display-name">Loading...</h3>
+      <p id="user-email-display"></p>
+    </div>
+  </div>
+  <button class="btn btn-secondary btn-block" onclick="appEngine.signOut()">Sign Out of Account</button>
+</div>
+<div class="card">
+<h2>Dispatcher Information</h2>
+<div class="settings-grid">
+<div>
+<label class="label-text" for="input-patient-name">Full Name</label>
+<input class="input-field" id="input-patient-name" onchange="appEngine.updatePatientInfo('name', this.value)" placeholder="Jane Doe" type="text"/>
+</div>
+<div>
+<label class="label-text" for="input-patient-address">Home Address</label>
+<input class="input-field" id="input-patient-address" onchange="appEngine.updatePatientInfo('address', this.value)" placeholder="123 Street Name, Suburb VIC 3000" type="text"/>
+</div>
+<div>
+<label class="label-text" for="input-contact-name">Emergency Contact Name</label>
+<input class="input-field" id="input-contact-name" onchange="appEngine.updatePatientInfo('emergencyContactName', this.value)" placeholder="John Doe (Son)" type="text"/>
+</div>
+<div>
+<label class="label-text" for="input-contact-phone">Emergency Contact Phone</label>
+<input class="input-field" id="input-contact-phone" onchange="appEngine.updatePatientInfo('emergencyContactPhone', this.value)" placeholder="0412 345 678" type="text"/>
+</div>
+</div>
+<h2 style="margin-top: 20px;">Oxygen Sensitivity Config</h2>
+<div class="toggle-row">
+<div class="toggle-info">
+<span class="toggle-label">Known CO₂ Retainer Status</span>
+<p style="font-size: 0.85rem; margin-bottom: 0; margin-top: 4px;">
+<strong>WARNING:</strong> Toggling this changes oxygen saturation targets displayed to emergency crews. (COPD-X criteria: retainers target range 88-92%; standard COPD patients target 92-96%).
+            </p>
+</div>
+<div class="toggle-control">
+<input id="chk-co2-retainer" onchange="appEngine.handleCO2RetainerToggle(this.checked)" type="checkbox"/>
+<span class="slider"></span>
+</div>
+</div>
+</div>
+<div class="card" style="border-color: #E0C0C0;">
+<h2 style="color: var(--zone-red-accent);">Danger Area</h2>
+<p>This clears all logged metrics and settings from this browser's memory storage.</p>
+<button class="btn btn-secondary" onclick="appEngine.confirmFullReset()" style="border-color: var(--zone-red-accent); color: var(--zone-red-accent);">
+          Full Data Reset
+        </button>
+</div>
+</div>
+</main>
+<!-- -------------------------------------------------------------
+       BOTTOM NAVIGATION BAR
+       ------------------------------------------------------------- -->
+<nav aria-label="Main Navigation" class="nav-bar">
+<button aria-label="Dashboard View" class="nav-item active" id="nav-btn-dashboard" onclick="appEngine.navigateTo('dashboard')">
+<svg viewbox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg>
+<span>Dashboard</span>
+</button>
+<button aria-label="Symptom Check View" class="nav-item" id="nav-btn-logs" onclick="appEngine.navigateTo('logs')">
+<svg viewbox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2zm0 8H7v-2h10v2z"></path></svg>
+<span>Logs</span>
+</button>
+<button aria-label="Hospital Checklist View" class="nav-item" id="nav-btn-checklist" onclick="appEngine.navigateTo('checklist')">
+<svg viewbox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path></svg>
+<span>Discharge</span>
+</button>
+<button aria-label="Profile Settings View" class="nav-item" id="nav-btn-profile" onclick="appEngine.navigateTo('profile')">
+<svg viewbox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+<span>Profile</span>
+</button>
+</nav>
+<!-- -------------------------------------------------------------
+       CONFIRMATION & PREAMBLE DIALOG OVERLAY (Validation Loop)
+       ------------------------------------------------------------- -->
+<div aria-labelledby="modal-title" aria-modal="true" class="modal-overlay" id="confirmation-modal" role="dialog">
+<div class="modal-content">
+<div class="modal-header" id="modal-title">
+<!-- Dynamic header icon/title -->
+</div>
+<div class="modal-body" id="modal-body-content">
+<!-- Dynamic core description -->
+</div>
+<div class="modal-footer">
+<button class="btn btn-secondary" id="modal-btn-cancel" onclick="appEngine.closeConfirmationModal(false)">Cancel</button>
+<button class="btn btn-primary" id="modal-btn-confirm" onclick="appEngine.closeConfirmationModal(true)">Confirm</button>
+</div>
+</div>
+</div>
+<!-- -------------------------------------------------------------
+       APPLICATION STATE CONTROLLER ENGINE (ES6 Vanilla JavaScript)
+       ------------------------------------------------------------- -->
+<script>
+    /**
+     * MAPPED CLINICAL RULES AND DATA STRUCTURES
+     * Grounded in COPD-X Australian Guidelines & Care checklists.
+     */
+    class COPDAppController {
+      constructor() {
+        this.STORAGE_KEY = 'copd_app_patient_state';
+        
+        // Setup initial default 1:1 state representation
+        this.state = {
+          user: null, // Firebase authenticated user details
+          currentZone: 'green', // green | amber | red
+          patientInfo: {
+            name: '',
+            address: '',
+            emergencyContactName: '',
+            emergencyContactPhone: '',
+            co2Retainer: false
+          },
+          dailyStatus: {
+            breathlessness: 'usual', // usual | worse | emergency
+            cough_worse: false,
+            mucus_more: false,
+            mucus_color_changed: false,
+            fever: false,
+            exercise_harder: false,
+            // Critical Red Indicators
+            tooBreathlessToTalk: false,
+            fastHeartbeat: false,
+            blueTint: false,
+            chestPain: false
+          },
+          medications: {
+            maintenanceTaken: false,
+            relieverTakenCount: 0,
+            rescuePackActivated: false,
+            prednisoloneTaken: false,
+            antibioticsTaken: false
+          },
+          rehabExercises: {
+            completedToday: false
+          },
+          hospitalChecklist: {
+            gpAppointment7Days: false,
+            gpAppointmentDate: '',
+            actionPlanStored: false,
+            inhalerTechniqueVerified: false,
+            pulmonaryRehabReferral: false,
+            vaccinations: false,
+            vaccinationsChecked: {
+              influenza: false,
+              pneumococcal: false,
+              covid19: false
+            },
+            advanceCarePlanningChecked: false
+          },
+          logs: []
+        };
+
+        // Active validation queue properties
+        this.pendingStateChange = null;
+        this.validationLoopActive = false;
+
+        this.init();
+      }
+
+      /**
+       * Initialization and LocalStorage restoration.
+       */
+      init() {
+        const persisted = localStorage.getItem(this.STORAGE_KEY);
+        if (persisted) {
+          try {
+            this.state = JSON.parse(persisted);
+            // Ensure schema integrity for nested components
+            if (!this.state.hospitalChecklist.vaccinationsChecked) {
+              this.state.hospitalChecklist.vaccinationsChecked = { influenza: false, pneumococcal: false, covid19: false };
+            }
+          } catch (e) {
+            console.error("Corrupted local cache. Re-initializing default values.", e);
+          }
+        }
+        
+        // Register Firebase Auth listener
+        firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+            this.state.user = {
+              uid: user.uid,
+              isAnonymous: user.isAnonymous,
+              displayName: user.displayName || (user.isAnonymous ? 'Guest Patient' : 'COPD Patient'),
+              email: user.email || 'guest@copdmanager.local',
+              photoURL: user.photoURL || ''
+            };
+            if (!this.state.patientInfo.name && user.displayName) {
+              this.state.patientInfo.name = user.displayName;
+              document.getElementById('input-patient-name').value = user.displayName;
+            }
+            document.body.classList.remove('unauthenticated');
+            
+            // Navigate to dashboard on initial login
+            const activeView = document.querySelector('.view-panel.active');
+            if (!activeView || activeView.id === 'view-login') {
+              // Defer to renderAll or manually trigger dashboard nav
+              document.getElementById('view-login').classList.remove('active');
+              document.getElementById('view-dashboard').classList.add('active');
+            }
+          } else {
+            this.state.user = null;
+            document.body.classList.add('unauthenticated');
+            
+            // Switch active view to login view
+            const activeView = document.querySelector('.view-panel.active');
+            if (activeView) activeView.classList.remove('active');
+            document.getElementById('view-login').classList.add('active');
+          }
+          this.saveState();
+          this.renderAll();
+        });
+
+        // Initial setup of document visual bindings
+        this.bindDOMInputs();
+        this.startValidationThread();
+        this.renderAll();
+      }
+
+      /**
+       * Persists 1:1 state updates to local cache.
+       */
+      saveState() {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.state));
+      }
+
+      /**
+       * Bind standard DOM input fields to mirror initial State.
+       */
+      bindDOMInputs() {
+        document.getElementById('input-patient-name').value = this.state.patientInfo.name;
+        document.getElementById('input-patient-address').value = this.state.patientInfo.address;
+        document.getElementById('input-contact-name').value = this.state.patientInfo.emergencyContactName;
+        document.getElementById('input-contact-phone').value = this.state.patientInfo.emergencyContactPhone;
+        document.getElementById('chk-co2-retainer').checked = this.state.patientInfo.co2Retainer;
+
+        // Daily Checklist checkboxes
+        document.getElementById('chk-cough-worse').checked = this.state.dailyStatus.cough_worse;
+        document.getElementById('chk-mucus-more').checked = this.state.dailyStatus.mucus_more;
+        document.getElementById('chk-mucus-color').checked = this.state.dailyStatus.mucus_color_changed;
+        document.getElementById('chk-fever').checked = this.state.dailyStatus.fever;
+        document.getElementById('chk-ex-hard').checked = this.state.dailyStatus.exercise_harder;
+
+        // Red checklist items
+        document.getElementById('chk-red-talk').checked = this.state.dailyStatus.tooBreathlessToTalk;
+        document.getElementById('chk-red-heart').checked = this.state.dailyStatus.fastHeartbeat;
+        document.getElementById('chk-red-tint').checked = this.state.dailyStatus.blueTint;
+        document.getElementById('chk-red-chest').checked = this.state.dailyStatus.chestPain;
+
+        // Hospital checklist UI
+        document.getElementById('chk-gp-followup').checked = this.state.hospitalChecklist.gpAppointment7Days;
+        document.getElementById('input-gp-date').value = this.state.hospitalChecklist.gpAppointmentDate;
+        document.getElementById('chk-action-plan').checked = this.state.hospitalChecklist.actionPlanStored;
+        document.getElementById('chk-inhaler-tech').checked = this.state.hospitalChecklist.inhalerTechniqueVerified;
+        document.getElementById('chk-rehab-referral').checked = this.state.hospitalChecklist.pulmonaryRehabReferral;
+        document.getElementById('chk-vaccines').checked = this.state.hospitalChecklist.vaccinations;
+        document.getElementById('chk-vac-flu').checked = this.state.hospitalChecklist.vaccinationsChecked.influenza;
+        document.getElementById('chk-vac-pneumo').checked = this.state.hospitalChecklist.vaccinationsChecked.pneumococcal;
+        document.getElementById('chk-vac-covid').checked = this.state.hospitalChecklist.vaccinationsChecked.covid19;
+        document.getElementById('chk-advance-care').checked = this.state.hospitalChecklist.advanceCarePlanningChecked;
+
+        // Render visibility of conditional checklists
+        this.toggleConditionalFields();
+      }
+
+      /**
+       * Parallel Threat Checker System (Simulating concurrent validation thread)
+       * Validates threshold breaches to detect regression asynchronously.
+       */
+      startValidationThread() {
+        setInterval(() => {
+          // Check emergency indicators first (Red Alert Rule)
+          const s = this.state.dailyStatus;
+          const hasEmergencyBreach = 
+            s.breathlessness === 'emergency' ||
+            s.tooBreathlessToTalk ||
+            s.fastHeartbeat ||
+            s.blueTint ||
+            s.chestPain;
+
+          const hasAmberBreach = 
+            s.breathlessness === 'worse' ||
+            s.cough_worse ||
+            s.mucus_more ||
+            s.mucus_color_changed ||
+            s.fever ||
+            s.exercise_harder;
+
+          let targetZone = 'green';
+          if (hasEmergencyBreach) {
+            targetZone = 'red';
+          } else if (hasAmberBreach) {
+            targetZone = 'amber';
+          }
+
+          // Trigger state transition if thread detects mismatch without blocking user input
+          if (this.state.currentZone !== targetZone && !this.validationLoopActive) {
+            this.state.currentZone = targetZone;
+            this.saveState();
+            this.renderAll();
+          }
+        }, 1000); // 1Hz telemetry frequency check
+      }
+
+      /**
+       * Handle routing between sections.
+       */
+      navigateTo(viewId) {
+        // Enforce authentication lock
+        if (!this.state.user) {
+          return;
+        }
+        // Enforce Red lockout constraints
+        if (this.state.currentZone === 'red') {
+          return;
+        }
+
+        // DOM switch
+        const sections = ['dashboard', 'logs', 'checklist', 'profile'];
+        sections.forEach(sec => {
+          document.getElementById(`view-${sec}`).classList.remove('active');
+          document.getElementById(`nav-btn-${sec}`).classList.remove('active');
+        });
+
+        document.getElementById(`view-${viewId}`).classList.add('active');
+        document.getElementById(`nav-btn-${viewId}`).classList.add('active');
+        
+        window.scrollTo(0, 0);
+      }
+
+      /**
+       * FIREBASE AUTHENTICATION INTERACTIVE CONTROLS
+       */
+      loginWithGoogle() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithPopup(provider)
+          .then((result) => {
+            this.logTelemetryEvent('Signed in successfully via Google');
+          })
+          .catch((error) => {
+            console.error("Google Sign-In Error:", error);
+            alert("Authentication failed: " + error.message);
+          });
+      }
+
+      loginAsGuest() {
+        firebase.auth().signInAnonymously()
+          .then((result) => {
+            this.logTelemetryEvent('Signed in as Guest (Anonymous)');
+          })
+          .catch((error) => {
+            console.error("Anonymous Sign-In Error:", error);
+            alert("Guest access failed: " + error.message);
+          });
+      }
+
+      signOut() {
+        firebase.auth().signOut()
+          .then(() => {
+            this.logTelemetryEvent('Signed out of session');
+          })
+          .catch((error) => {
+            console.error("Sign-Out Error:", error);
+          });
+      }
+
+      /**
+       * SYMPTOM DATA HANDLERS & REFLECTION LOOPS
+       */
+      handleSymptomInput(metric, value) {
+        // Validation Confirmation Loop when logging symptoms of deterioration
+        if (value !== 'usual') {
+          this.triggerValidationModal(
+            'Confirm Symptom Change',
+            `You are logging: <strong>${metric === 'breathlessness' ? 'Breathlessness level: ' + value : value}</strong>. Is this correct?`,
+            () => {
+              this.state.dailyStatus[metric] = value;
+              this.saveState();
+              this.renderAll();
+            },
+            () => {
+              // Revert Radio Input Selection in DOM
+              this.bindDOMInputs();
+            }
+          );
+        } else {
+          this.state.dailyStatus[metric] = value;
+          this.saveState();
+          this.renderAll();
+        }
+      }
+
+      handleCheckboxInput(field, checked) {
+        if (checked) {
+          // Alert user of symptom escalation confirmation
+          this.triggerValidationModal(
+            'Logging Flare-up Symptom',
+            `Are you experiencing a change in symptoms?`,
+            () => {
+              this.state.dailyStatus[field] = true;
+              this.saveState();
+              this.renderAll();
+            },
+            () => {
+              this.state.dailyStatus[field] = false;
+              this.bindDOMInputs();
+            }
+          );
+        } else {
+          this.state.dailyStatus[field] = false;
+          this.saveState();
+          this.renderAll();
+        }
+      }
+
+      handleEmergencyCheck(field, checked) {
+        if (checked) {
+          this.triggerValidationModal(
+            '🚨 Emergency Warning',
+            'This symptom indicates a severe acute escalation. Confirming this will lock the application and prompt you to call 000.',
+            () => {
+              this.state.dailyStatus[field] = true;
+              this.state.currentZone = 'red';
+              this.saveState();
+              this.renderAll();
+            },
+            () => {
+              this.state.dailyStatus[field] = false;
+              this.bindDOMInputs();
+            }
+          );
+        } else {
+          this.state.dailyStatus[field] = false;
+          this.saveState();
+          this.renderAll();
+        }
+      }
+
+      /**
+       * Hospital Stay Continuity Actions
+       */
+      handleChecklistChange(field, checked) {
+        if (field === 'vaccinations') {
+          this.state.hospitalChecklist.vaccinations = checked;
+        } else {
+          this.state.hospitalChecklist[field] = checked;
+        }
+        this.saveState();
+        this.toggleConditionalFields();
+      }
+
+      handleGPDateChange(val) {
+        this.state.hospitalChecklist.gpAppointmentDate = val;
+        this.saveState();
+      }
+
+      handleSubVaccineChange(type, checked) {
+        this.state.hospitalChecklist.vaccinationsChecked[type] = checked;
+        this.saveState();
+      }
+
+      handleCO2RetainerToggle(checked) {
+        this.state.patientInfo.co2Retainer = checked;
+        this.saveState();
+        this.renderAll();
+      }
+
+      updatePatientInfo(field, value) {
+        this.state.patientInfo[field] = value;
+        this.saveState();
+        this.renderAll();
+      }
+
+      /**
+       * Reset logic modules
+       */
+      resetSymptomLogger() {
+        this.state.dailyStatus = {
+          breathlessness: 'usual',
+          cough_worse: false,
+          mucus_more: false,
+          mucus_color_changed: false,
+          fever: false,
+          exercise_harder: false,
+          tooBreathlessToTalk: false,
+          fastHeartbeat: false,
+          blueTint: false,
+          chestPain: false
+        };
+        this.state.medications.relieverTakenCount = 0;
+        this.state.medications.maintenanceTaken = false;
+        this.state.medications.rescuePackActivated = false;
+        this.state.medications.prednisoloneTaken = false;
+        this.state.medications.antibioticsTaken = false;
+        
+        this.saveState();
+        this.bindDOMInputs();
+        this.renderAll();
+      }
+
+      confirmEmergencyReset() {
+        this.triggerValidationModal(
+          'Reset Application State',
+          'Confirm that you are safe, symptoms have resolved, and you want to unlock the standard features.',
+          () => {
+            this.state.currentZone = 'green';
+            this.resetSymptomLogger();
+          }
+        );
+      }
+
+      confirmFullReset() {
+        this.triggerValidationModal(
+          '⚠️ Factory Data Reset',
+          'This will permanently delete all logs, patient configuration, and continuity checklist variables. Proceed?',
+          () => {
+            localStorage.removeItem(this.STORAGE_KEY);
+            window.location.reload();
+          }
+        );
+      }
+
+      /**
+       * Conditional fields visibility display
+       */
+      toggleConditionalFields() {
+        // Toggle GP followup date selector input
+        const gpCheckbox = document.getElementById('chk-gp-followup');
+        const gpSubfield = document.getElementById('gp-date-subfield');
+        if (gpCheckbox.checked) {
+          gpSubfield.classList.add('active');
+        } else {
+          gpSubfield.classList.remove('active');
+        }
+
+        // Toggle Vaccine child checkbox subfield container
+        const vacCheckbox = document.getElementById('chk-vaccines');
+        const vacSubfield = document.getElementById('vaccine-subfield');
+        if (vacCheckbox.checked) {
+          vacSubfield.classList.add('active');
+        } else {
+          vacSubfield.classList.remove('active');
+        }
+      }
+
+      /**
+       * MEDICATION AND REHAB COMPLIANCE CONTROLLER
+       */
+      markMaintenanceTaken() {
+        this.state.medications.maintenanceTaken = true;
+        this.logTelemetryEvent('Maintenance medication checked off as taken');
+        this.saveState();
+        this.renderAll();
+      }
+
+      incrementRelieverPuffs() {
+        this.state.medications.relieverTakenCount += 1;
+        this.logTelemetryEvent(`Reliever medication: Puff count increased to ${this.state.medications.relieverTakenCount}`);
+        this.saveState();
+        this.renderAll();
+      }
+
+      resetRelieverPuffs() {
+        this.state.medications.relieverTakenCount = 0;
+        this.saveState();
+        this.renderAll();
+      }
+
+      markRehabCompleted() {
+        this.state.rehabExercises.completedToday = true;
+        this.logTelemetryEvent('Pulmonary rehabilitation exercise completed');
+        this.saveState();
+        this.renderAll();
+      }
+
+      activateRescuePack() {
+        // Tool Preamble Validation modal for clinical compliance
+        const currentSputum = this.state.dailyStatus.mucus_color_changed;
+        const currentFever = this.state.dailyStatus.fever;
+
+        let warningDetails = "";
+        if (!currentSputum && !currentFever) {
+          warningDetails = `<div style="background-color: #FFF3CD; border: 1px solid #FFEBA5; padding: 12px; border-radius: 4px; margin-bottom: 12px; color: #664D03;">
+            <strong>Warning:</strong> Rescue packs (oral prednisolone/antibiotics) are indicated for flareups where sputum is discolored/purulent, or when fever is present. Neither indicator is currently checked.
+          </div>`;
+        }
+
+        this.triggerValidationModal(
+          'Verify Rescue Pack Intake',
+          `${warningDetails}
+          <p>Please confirm you have a valid doctor's prescription instructions to activate the rescue pack:</p>
+          <ul style="margin: 12px 0 12px 24px; font-size: 0.95rem;">
+            <li><strong>Oral Prednisolone:</strong> 30mg to 50mg daily for 5 days.</li>
+            <li><strong>Antibiotics:</strong> Amoxycillin 500mg TDS, Amoxycillin 1g BD, or Doxycycline 100mg OD for 5 days.</li>
+          </ul>`,
+          () => {
+            this.state.medications.rescuePackActivated = true;
+            this.logTelemetryEvent('Rescue pack activated: Oral steroids/antibiotics regimen initialized.');
+            this.saveState();
+            this.renderAll();
+          }
+        );
+      }
+
+      markRescueMedication(medType) {
+        this.state.medications[medType] = true;
+        this.logTelemetryEvent(`Rescue Pack: Marked ${medType} as taken.`);
+        this.saveState();
+        this.renderAll();
+      }
+
+      /**
+       * Telemetry active logs recorder
+       */
+      logTelemetryEvent(msg) {
+        const time = new Date().toLocaleString('en-AU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        this.state.logs.unshift({ time, msg });
+        if (this.state.logs.length > 20) {
+          this.state.logs.pop();
+        }
+        this.saveState();
+      }
+
+      logEmergencyCall() {
+        this.logTelemetryEvent('Emergency Dial Triggered. Patient routed to call 000.');
+        this.saveState();
+      }
+
+      /**
+       * MODAL INTERACTIVE CONTROLS (Validation & Preamble Loop)
+       */
+      triggerValidationModal(title, body, confirmCallback, cancelCallback) {
+        this.validationLoopActive = true;
+        const overlay = document.getElementById('confirmation-modal');
+        const titleEl = document.getElementById('modal-title');
+        const bodyEl = document.getElementById('modal-body-content');
+
+        titleEl.innerHTML = title;
+        bodyEl.innerHTML = body;
+
+        overlay.classList.add('active');
+
+        // Capture callbacks
+        this.pendingStateChange = {
+          confirm: () => {
+            confirmCallback();
+            if (cancelCallback) cancelCallback = null;
+          },
+          cancel: () => {
+            if (cancelCallback) cancelCallback();
+          }
+        };
+      }
+
+      closeConfirmationModal(isConfirmed) {
+        const overlay = document.getElementById('confirmation-modal');
+        overlay.classList.remove('active');
+        this.validationLoopActive = false;
+
+        if (this.pendingStateChange) {
+          if (isConfirmed) {
+            this.pendingStateChange.confirm();
+          } else {
+            this.pendingStateChange.cancel();
+          }
+          this.pendingStateChange = null;
+        }
+      }
+
+      /**
+       * RENDER ENGINE
+       * Updates UI based on Active State Variables (1:1 Binding)
+       */
+      renderAll() {
+        const zone = this.state.currentZone;
+        const body = document.body;
+        const banner = document.getElementById('dynamic-zone-banner');
+
+        // Apply emergency Lockout states directly
+        if (zone === 'red') {
+          body.classList.add('emergency-locked');
+          document.getElementById('emergency-spo2-instruction').innerHTML = 
+            `Target SpO₂ Range: ${this.state.patientInfo.co2Retainer ? '88% - 92% (CO₂ Retainer)' : '92% - 96% (Standard)'}`;
+          document.getElementById('emergency-retainer-status').innerHTML = 
+            `CO₂ Retainer Status: ${this.state.patientInfo.co2Retainer ? 'Active / Retaining' : 'Inactive'}`;
+          document.getElementById('emergency-address-display').innerText = 
+            this.state.patientInfo.address || 'Address details not set in settings';
+          document.getElementById('emergency-contact-display').innerText = 
+            this.state.patientInfo.emergencyContactName ? `${this.state.patientInfo.emergencyContactName} (${this.state.patientInfo.emergencyContactPhone})` : 'Emergency contact info not set';
+          return;
+        } else {
+          body.classList.remove('emergency-locked');
+        }
+
+        // Zone header render updates
+        banner.className = `zone-banner zone-${zone}`;
+        if (zone === 'green') {
+          banner.innerHTML = 'My Symptoms Status: Stable (Green Zone)';
+          document.getElementById('app-title-display').innerHTML = 'COPD Care: Stable';
+        } else if (zone === 'amber') {
+          banner.innerHTML = 'My Symptoms Status: Flare-up (Amber Zone)';
+          document.getElementById('app-title-display').innerHTML = 'COPD Care: Warning';
+        }
+
+        // Render View 1: Active Dashboard Zone Card
+        this.renderDashboardCard();
+
+        // Render View 2: History log lists
+        this.renderLogsView();
+
+        // Render user details in profile view if logged in
+        const userCard = document.getElementById('user-profile-card');
+        if (this.state.user) {
+          userCard.style.display = 'block';
+          document.getElementById('user-display-name').innerText = this.state.user.displayName;
+          document.getElementById('user-email-display').innerText = this.state.user.email;
+          
+          const avatar = document.getElementById('user-avatar');
+          if (this.state.user.photoURL) {
+            avatar.src = this.state.user.photoURL;
+            avatar.style.display = 'block';
+          } else {
+            avatar.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2364748B"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
+            avatar.style.display = 'block';
+          }
+        } else {
+          userCard.style.display = 'none';
+        }
+      }
+
+      renderDashboardCard() {
+        const card = document.getElementById('dashboard-zone-card');
+        const zone = this.state.currentZone;
+
+        if (zone === 'green') {
+          // Render Green Zone View
+          card.style.borderColor = 'var(--zone-green-accent)';
+          card.style.backgroundColor = 'var(--zone-green-bg)';
+          
+          const medBtnDisabled = this.state.medications.maintenanceTaken ? 'disabled style="opacity: 0.6; cursor: not-allowed;"' : '';
+          const medText = this.state.medications.maintenanceTaken ? '✓ Maintenance Medication Taken' : 'Mark Maintenance Taken';
+
+          const rehabBtnDisabled = this.state.rehabExercises.completedToday ? 'disabled style="opacity: 0.6; cursor: not-allowed;"' : '';
+          const rehabText = this.state.rehabExercises.completedToday ? '✓ Exercises Checked off' : 'Mark Rehab Exercises Completed';
+
+          card.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+              <svg style="width: 32px; height: 32px; fill: var(--zone-green-dark);" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              <h2 style="color: var(--zone-green-dark); margin-bottom: 0;">Green Zone: Stable Status</h2>
+            </div>
+            <p style="color: var(--zone-green-dark); margin-bottom: 20px;">
+              Your breathing is normal. Carry out these routine tasks to maintain baseline strength and avoid exacerbations.
+            </p>
+            
+            <div style="margin-bottom: 16px;">
+              <h3 style="color: var(--zone-green-dark);">1. Preventative Maintenance Care</h3>
+              <p style="font-size: 0.95rem; color: var(--zone-green-dark); margin-bottom: 8px;">Take your regular long-acting inhalers as prescribed daily.</p>
+              <button class="btn btn-primary btn-block" ${medBtnDisabled} onclick="appEngine.markMaintenanceTaken()">
+                ${medText}
+              </button>
+            </div>
+
+            <div>
+              <h3 style="color: var(--zone-green-dark);">2. Pulmonary Rehabilitation Tasks</h3>
+              <p style="font-size: 0.95rem; color: var(--zone-green-dark); margin-bottom: 8px;">Perform scheduled walking, breathing control sequences or strength exercises.</p>
+              <button class="btn btn-secondary btn-block" ${rehabBtnDisabled} onclick="appEngine.markRehabCompleted()">
+                ${rehabText}
+              </button>
+            </div>
+          `;
+        } else if (zone === 'amber') {
+          // Render Amber Zone View
+          card.style.borderColor = 'var(--zone-amber-accent)';
+          card.style.backgroundColor = 'var(--zone-amber-bg)';
+
+          const puffs = this.state.medications.relieverTakenCount;
+          const rescueActivated = this.state.medications.rescuePackActivated;
+          const predTaken = this.state.medications.prednisoloneTaken;
+          const abTaken = this.state.medications.antibioticsTaken;
+
+          card.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+              <svg style="width: 32px; height: 32px; fill: var(--zone-amber-dark);" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+              <h2 style="color: var(--zone-amber-dark); margin-bottom: 0;">Amber Zone: Exacerbation Alert</h2>
+            </div>
+            <p style="color: var(--zone-amber-dark);">
+              Breathing checks indicate regression. Follow the clinical plan steps below.
+            </p>
+
+            <!-- Reliever instructions -->
+            <div class="card" style="margin-bottom: 16px; border-color: var(--zone-amber-accent);">
+              <h3 style="color: var(--zone-amber-dark);">Step 1. Dose Reliever Inhaler</h3>
+              <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 8px;">
+                Increase reliever medication usage (e.g. Salbutamol 4 to 8 puffs via spacer every 3 to 4 hours).
+              </p>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                <span>Puffs Logged: <strong>${puffs}</strong></span>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn btn-secondary" style="min-width: 60px; padding: 6px 12px; min-height: 40px;" onclick="appEngine.incrementRelieverPuffs()">+ Puff</button>
+                  <button class="btn btn-secondary" style="min-width: 60px; padding: 6px 12px; min-height: 40px; border-color: #888; color: #888;" onclick="appEngine.resetRelieverPuffs()">Reset</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Rescue Pack Option -->
+            <div class="card" style="margin-bottom: 16px; border-color: var(--zone-amber-accent);">
+              <h3 style="color: var(--zone-amber-dark);">Step 2. Rescue Pack Activation</h3>
+              
+              ${!rescueActivated ? `
+                <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 12px;">
+                  If sputum color has changed (yellow/green) or fever is present, activate your prescriber Rescue Pack.
+                </p>
+                <button class="btn btn-primary btn-block" onclick="appEngine.activateRescuePack()">
+                  Activate Rescue Pack
+                </button>
+              ` : `
+                <p style="font-size: 0.95rem; color: #2B8A3E; font-weight: bold; margin-bottom: 12px;">
+                  ✓ Rescue Pack Active. Log daily doses below:
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <button class="btn btn-secondary btn-block" ${predTaken ? 'disabled style="opacity: 0.6;"' : ''} onclick="appEngine.markRescueMedication('prednisoloneTaken')">
+                    ${predTaken ? '✓ Prednisolone Taken (30-50mg)' : 'Mark Prednisolone Taken'}
+                  </button>
+                  <button class="btn btn-secondary btn-block" ${abTaken ? 'disabled style="opacity: 0.6;"' : ''} onclick="appEngine.markRescueMedication('antibioticsTaken')">
+                    ${abTaken ? '✓ Antibiotics Taken' : 'Mark Antibiotics Taken'}
+                  </button>
+                </div>
+              `}
+            </div>
+
+            <!-- Escalation Instructions -->
+            <div class="card" style="margin-bottom: 0; border-color: var(--zone-amber-accent); background-color: #FFFDF5;">
+              <h3 style="color: var(--zone-amber-dark);">Step 3. Clinic Notification</h3>
+              <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 8px;">
+                Contact your General Practitioner or Respiratory Nurse to document this flare-up event in your medical records.
+              </p>
+              <div style="background-color: #FFF3CD; border: 1px solid #FFEBA5; padding: 12px; border-radius: 4px; color: #664D03; font-size: 0.9rem;">
+                <strong>IMPORTANT:</strong> If symptoms do not improve after 2 to 3 days on rescue medications, contact your GP immediately or visit an Urgent Care Center.
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      renderLogsView() {
+        const list = document.getElementById('telemetry-logs-list');
+        if (this.state.logs.length === 0) {
+          list.innerHTML = '<p style="font-style: italic;">No events logged today.</p>';
+          return;
+        }
+
+        let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
+        this.state.logs.forEach(log => {
+          html += `
+            <div class="log-item">
+              <div>
+                <span class="log-meta">[${log.time}]</span>
+                <span style="margin-left: 8px; font-weight: bold; font-size: 0.95rem;">${log.msg}</span>
+              </div>
+            </div>
+          `;
+        });
+        html += '</div>';
+        list.innerHTML = html;
+      }
+    }
+
+    // Launch App Engine on window load
+    let appEngine;
+    window.addEventListener('DOMContentLoaded', () => {
+      appEngine = new COPDAppController();
+    });
+  </script>
+</body></html>

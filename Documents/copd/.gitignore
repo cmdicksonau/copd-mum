@@ -1,0 +1,8 @@
+# Exclude large video assets
+walkthrough.mp4
+walkthrough_old.mp4
+
+# Exclude dependencies and OS artifacts
+video/node_modules/
+.DS_Store
+Thumbs.db

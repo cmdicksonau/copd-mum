@@ -1,0 +1,16 @@
+{
+  "projectId": "7228463483953964686",
+  "title": "COPD Manager",
+  "designSystemAssetId": "7da3389d7cf845e89822d529640ba113",
+  "screens": [
+    {
+      "id": "9810ce6f9c114ddca9e9cd895002624e",
+      "title": "My COPD Manager Prototype"
+    },
+    {
+      "id": "fd1893baecd7466f947f2046a560f080",
+      "title": "Functional COPD Manager Prototype"
+    }
+  ],
+  "lastUpdated": "2026-06-04T12:57:00+10:00"
+}
