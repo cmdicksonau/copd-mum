@@ -480,6 +480,30 @@
       color: var(--text-primary);
     }
 
+    .coach-results {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .coach-result-item {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      background-color: #FFFFFF;
+    }
+
+    .coach-result-item h3 {
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .coach-result-item ul {
+      margin: 8px 0 0 20px;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
     /* Modals (Tool Preambles & Validation Confirmation) */
     .modal-overlay {
       position: fixed;
@@ -1131,7 +1155,23 @@
 <button class="btn btn-primary" onclick="appEngine.navigateTo('dashboard')">View Summary</button>
 </div>
 </div>
-<!-- VIEW 4: PATIENT PROFILE & STATE CONFIGURATION -->
+<!-- VIEW 4: PROMPT COACH -->
+<div class="view-panel" id="view-coach">
+<h1>Prompt Coach</h1>
+<p>Paste your previous prompts (one per line) to get coaching on clarity, spelling, syntax, and better use of skills/MCP tools.</p>
+<div class="card">
+<label class="label-text" for="prompt-coach-input">Previous Prompts</label>
+<textarea class="input-field" id="prompt-coach-input" oninput="appEngine.updatePromptCoachInput(this.value)" placeholder="Example: Fix the failing CI workflow for PR 42 and show me the root cause." rows="8"></textarea>
+<button class="btn btn-primary btn-block" onclick="appEngine.analyzePromptCoach()">Analyze Prompts</button>
+</div>
+<div class="card">
+<h2>Coaching Feedback</h2>
+<div class="coach-results" id="prompt-coach-results">
+<p style="font-style: italic;">No prompt feedback yet. Add prompts and run analysis.</p>
+</div>
+</div>
+</div>
+<!-- VIEW 5: PATIENT PROFILE & STATE CONFIGURATION -->
 <div class="view-panel" id="view-profile">
 <h1>My Medical Profile</h1>
 <p>Configure critical data parameters. Ensure these are accurate to support accurate medical directives.</p>
@@ -1209,6 +1249,10 @@
 <button aria-label="Profile Settings View" class="nav-item" id="nav-btn-profile" onclick="appEngine.navigateTo('profile')">
 <svg viewbox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
 <span>Profile</span>
+</button>
+<button aria-label="Prompt Coach View" class="nav-item" id="nav-btn-coach" onclick="appEngine.navigateTo('coach')">
+<svg viewbox="0 0 24 24"><path d="M9 21h6v-1H9v1zm3-19C8.69 2 6 4.69 6 8c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-3.26c1.81-1.27 3-3.36 3-5.74 0-3.31-2.69-6-6-6zm2 10.7-.7.5V16h-2.6v-2.8l-.7-.5A4 4 0 1 1 16 8c0 1.5-.84 2.85-2 3.7z"></path></svg>
+<span>Coach</span>
 </button>
 </nav>
 <!-- -------------------------------------------------------------
@@ -1288,6 +1332,10 @@
             },
             advanceCarePlanningChecked: false
           },
+          promptCoach: {
+            previousPrompts: '',
+            feedback: []
+          },
           logs: []
         };
 
@@ -1309,6 +1357,15 @@
             // Ensure schema integrity for nested components
             if (!this.state.hospitalChecklist.vaccinationsChecked) {
               this.state.hospitalChecklist.vaccinationsChecked = { influenza: false, pneumococcal: false, covid19: false };
+            }
+            if (!this.state.promptCoach) {
+              this.state.promptCoach = { previousPrompts: '', feedback: [] };
+            }
+            if (typeof this.state.promptCoach.previousPrompts !== 'string') {
+              this.state.promptCoach.previousPrompts = '';
+            }
+            if (!Array.isArray(this.state.promptCoach.feedback)) {
+              this.state.promptCoach.feedback = [];
             }
           } catch (e) {
             console.error("Corrupted local cache. Re-initializing default values.", e);
@@ -1398,6 +1455,7 @@
         document.getElementById('chk-vac-pneumo').checked = this.state.hospitalChecklist.vaccinationsChecked.pneumococcal;
         document.getElementById('chk-vac-covid').checked = this.state.hospitalChecklist.vaccinationsChecked.covid19;
         document.getElementById('chk-advance-care').checked = this.state.hospitalChecklist.advanceCarePlanningChecked;
+        document.getElementById('prompt-coach-input').value = this.state.promptCoach.previousPrompts || '';
 
         // Render visibility of conditional checklists
         this.toggleConditionalFields();
@@ -1456,7 +1514,7 @@
         }
 
         // DOM switch
-        const sections = ['dashboard', 'logs', 'checklist', 'profile'];
+        const sections = ['dashboard', 'logs', 'checklist', 'profile', 'coach'];
         sections.forEach(sec => {
           document.getElementById(`view-${sec}`).classList.remove('active');
           document.getElementById(`nav-btn-${sec}`).classList.remove('active');
@@ -1609,6 +1667,110 @@
         this.state.patientInfo[field] = value;
         this.saveState();
         this.renderAll();
+      }
+
+      updatePromptCoachInput(value) {
+        this.state.promptCoach.previousPrompts = value;
+        this.saveState();
+      }
+
+      analyzePromptCoach() {
+        const promptText = this.state.promptCoach.previousPrompts || '';
+        const prompts = promptText
+          .split('\n')
+          .map((line) => line.trim())
+          .filter((line) => line.length > 0);
+
+        if (prompts.length === 0) {
+          this.state.promptCoach.feedback = [];
+          this.saveState();
+          this.renderPromptCoachFeedback();
+          return;
+        }
+
+        const commonMisspellings = [
+          ['teh', 'the'],
+          ['recieve', 'receive'],
+          ['definately', 'definitely'],
+          ['seperate', 'separate'],
+          ['promt', 'prompt'],
+          ['seesion', 'session'],
+          ['wierd', 'weird'],
+          ['enviroment', 'environment']
+        ];
+
+        const actionVerbPattern = /\b(create|build|fix|update|analyze|review|explain|generate|write|find|implement|refactor|debug|investigate|summarize|plan)\b/i;
+        const constraintPattern = /\b(file|path|repo|branch|function|component|workflow|test|output|format|constraint|acceptance|criteria)\b/i;
+
+        this.state.promptCoach.feedback = prompts.map((prompt, index) => {
+          const lowerPrompt = prompt.toLowerCase();
+          const spelling = [];
+          const syntax = [];
+          const improvements = [];
+
+          commonMisspellings.forEach(([wrong, right]) => {
+            const matchPattern = new RegExp(`\\b${wrong}\\b`, 'i');
+            if (matchPattern.test(lowerPrompt)) {
+              spelling.push(`"${wrong}" looks misspelled. Consider "${right}".`);
+            }
+          });
+
+          const delimiterChecks = [
+            ['(', ')', 'parentheses'],
+            ['[', ']', 'square brackets'],
+            ['{', '}', 'curly braces']
+          ];
+          delimiterChecks.forEach(([open, close, label]) => {
+            const opens = (prompt.match(new RegExp(`\\${open}`, 'g')) || []).length;
+            const closes = (prompt.match(new RegExp(`\\${close}`, 'g')) || []).length;
+            if (opens !== closes) {
+              syntax.push(`Unbalanced ${label}: ${opens} opening and ${closes} closing.`);
+            }
+          });
+
+          const doubleQuotes = (prompt.match(/"/g) || []).length;
+          if (doubleQuotes % 2 !== 0) {
+            syntax.push('Unmatched double quote detected.');
+          }
+
+          if (/[,;:]$/.test(prompt.trim())) {
+            syntax.push('Prompt ends with a trailing punctuation mark that may indicate an incomplete instruction.');
+          }
+
+          if (prompt.length < 30) {
+            improvements.push('Add more context (goal, expected output, and constraints).');
+          }
+          if (!actionVerbPattern.test(prompt)) {
+            improvements.push('Start with a clear action verb (for example: create, fix, analyze, or review).');
+          }
+          if (!constraintPattern.test(prompt)) {
+            improvements.push('Include concrete constraints such as file paths, expected format, or acceptance criteria.');
+          }
+          if (/\b(github|pull request|pr|issue|workflow|actions|ci|commit|branch)\b/i.test(prompt) && !/\b(mcp|github mcp)\b/i.test(prompt)) {
+            improvements.push('Mention that GitHub MCP tools should be used for repository, PR, issue, or CI tasks.');
+          }
+          if (/\b(skill|skills|setup steps|copilot setup)\b/i.test(prompt) === false && /\b(pdf|xlsx|copilot-setup-steps|cloud agent)\b/i.test(prompt)) {
+            improvements.push('Call out the relevant skill explicitly when the task maps to a known skill workflow.');
+          }
+          if (/\b(previous prompts|sessions|history)\b/i.test(prompt) && !/\b(last|today|week|date|time range)\b/i.test(prompt)) {
+            improvements.push('Add a time range so session-based analysis can target the right history.');
+          }
+
+          if (spelling.length === 0 && syntax.length === 0 && improvements.length === 0) {
+            improvements.push('Prompt is already clear and actionable. Keep this structure.');
+          }
+
+          return {
+            id: index + 1,
+            prompt,
+            spelling,
+            syntax,
+            improvements
+          };
+        });
+
+        this.saveState();
+        this.renderPromptCoachFeedback();
       }
 
       /**
@@ -1847,6 +2009,7 @@
 
         // Render View 2: History log lists
         this.renderLogsView();
+        this.renderPromptCoachFeedback();
 
         // Render user details in profile view if logged in
         const userCard = document.getElementById('user-profile-card');
@@ -1866,6 +2029,53 @@
         } else {
           userCard.style.display = 'none';
         }
+      }
+
+      escapeHTML(text) {
+        return String(text)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      renderPromptCoachFeedback() {
+        const container = document.getElementById('prompt-coach-results');
+        if (!container) {
+          return;
+        }
+
+        const feedback = this.state.promptCoach.feedback || [];
+        if (feedback.length === 0) {
+          container.innerHTML = '<p style="font-style: italic;">No prompt feedback yet. Add prompts and run analysis.</p>';
+          return;
+        }
+
+        const renderList = (items, fallbackText) => {
+          if (!items || items.length === 0) {
+            return `<li>${this.escapeHTML(fallbackText)}</li>`;
+          }
+          return items.map((item) => `<li>${this.escapeHTML(item)}</li>`).join('');
+        };
+
+        let html = '';
+        feedback.forEach((entry) => {
+          html += `
+            <div class="coach-result-item">
+              <h3>Prompt ${entry.id}</h3>
+              <p><strong>Original:</strong> ${this.escapeHTML(entry.prompt)}</p>
+              <p><strong>Spelling checks</strong></p>
+              <ul>${renderList(entry.spelling, 'No spelling issues found.')}</ul>
+              <p><strong>Syntax checks</strong></p>
+              <ul>${renderList(entry.syntax, 'No syntax issues found.')}</ul>
+              <p><strong>Improvement suggestions</strong></p>
+              <ul>${renderList(entry.improvements, 'No suggestions.')}</ul>
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
       }
 
       renderDashboardCard() {
