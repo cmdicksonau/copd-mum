@@ -2,7 +2,24 @@
 walkthrough.mp4
 walkthrough_old.mp4
 
-# Exclude dependencies and OS artifacts
+# Dependencies and build outputs
+node_modules/
 video/node_modules/
+dist/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS artefacts
 .DS_Store
 Thumbs.db
+
+# Editor settings
+.vscode/*
+!.vscode/extensions.json
+.idea/
