@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { setDoc, doc } from 'firebase/firestore'
 import { AuthGuard } from './components/AuthGuard'
 import { ContactDirectoryForm, type ContactDirectoryValue } from './components/ContactDirectoryForm'
@@ -8,8 +8,6 @@ import { firebaseServices } from './config/firebase'
 import { useAuth } from './context/AuthContext'
 import type { UserMedicalProfile } from './types/domain'
 import { isValidAustralianDate, isValidAustralianPhone } from './utils/validation'
-
-const STORAGE_KEY = 'copd-medical-profile'
 
 const initialContacts: ContactDirectoryValue['contacts'] = {
   gp: { role: 'GP', name: '', clinicOrRelationship: '', phone: '' },
@@ -22,59 +20,15 @@ const initialContacts: ContactDirectoryValue['contacts'] = {
   },
 }
 
-const loadProfileDraft = (): {
-  contactDirectory: ContactDirectoryValue
-  customStrategies: string[]
-  carerWebhookUrl: string
-} => {
-  if (typeof window === 'undefined') {
-    return {
-      contactDirectory: { displayName: '', dateOfBirth: '', contacts: initialContacts },
-      customStrategies: [],
-      carerWebhookUrl: '',
-    }
-  }
-
-  const stored = window.localStorage.getItem(STORAGE_KEY)
-  if (!stored) {
-    return {
-      contactDirectory: { displayName: '', dateOfBirth: '', contacts: initialContacts },
-      customStrategies: [],
-      carerWebhookUrl: '',
-    }
-  }
-
-  try {
-    const parsed = JSON.parse(stored) as {
-      contactDirectory?: ContactDirectoryValue
-      customStrategies?: string[]
-      carerWebhookUrl?: string
-    }
-
-    return {
-      contactDirectory: parsed.contactDirectory || {
-        displayName: '',
-        dateOfBirth: '',
-        contacts: initialContacts,
-      },
-      customStrategies: parsed.customStrategies || [],
-      carerWebhookUrl: parsed.carerWebhookUrl || '',
-    }
-  } catch {
-    return {
-      contactDirectory: { displayName: '', dateOfBirth: '', contacts: initialContacts },
-      customStrategies: [],
-      carerWebhookUrl: '',
-    }
-  }
-}
-
 function App() {
   const { session, previewMode, togglePreviewMode, signOutUser } = useAuth()
-  const defaults = useMemo(() => loadProfileDraft(), [])
-  const [contactDirectory, setContactDirectory] = useState<ContactDirectoryValue>(defaults.contactDirectory)
-  const [customStrategies, setCustomStrategies] = useState<string[]>(defaults.customStrategies)
-  const [carerWebhookUrl, setCarerWebhookUrl] = useState(defaults.carerWebhookUrl)
+  const [contactDirectory, setContactDirectory] = useState<ContactDirectoryValue>({
+    displayName: '',
+    dateOfBirth: '',
+    contacts: initialContacts,
+  })
+  const [customStrategies, setCustomStrategies] = useState<string[]>([])
+  const [carerWebhookUrl, setCarerWebhookUrl] = useState('')
   const [statusMessage, setStatusMessage] = useState('')
 
   const phoneErrors = {
@@ -102,22 +56,9 @@ function App() {
     dateError || phoneErrors.gp || phoneErrors.specialist || phoneErrors.emergencyCarer,
   )
 
-  const persistDraft = () => {
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
-        contactDirectory,
-        customStrategies,
-        carerWebhookUrl,
-      }),
-    )
-  }
-
   const saveProfile = async () => {
-    persistDraft()
-
     if (hasValidationError || !session) {
-      setStatusMessage('Draft saved locally for offline recovery support.')
+      setStatusMessage('Please resolve validation items before saving the profile.')
       return
     }
 
@@ -141,7 +82,7 @@ function App() {
     }
 
     if (!firebaseServices.firestore || previewMode) {
-      setStatusMessage('Profile saved in Preview / Offline Mode and ready for live sync once enabled.')
+      setStatusMessage('Preview / Offline Mode active. Enable Google Sign-In to sync this profile.')
       return
     }
 

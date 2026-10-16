@@ -1,9 +1,20 @@
+import { isValidAustralianPhone } from '../utils/validation'
+
 interface EmergencyBarProps {
   carerPhone?: string
 }
 
+const buildDialHref = (phone?: string): string | undefined => {
+  if (!phone || !isValidAustralianPhone(phone)) {
+    return undefined
+  }
+
+  const compact = phone.trim().replace(/[\s()-]/g, '')
+  return `tel:${compact}`
+}
+
 export const EmergencyBar = ({ carerPhone }: EmergencyBarProps) => {
-  const carerHref = carerPhone ? `tel:${carerPhone}` : undefined
+  const carerHref = buildDialHref(carerPhone)
 
   return (
     <header className="sticky top-0 z-50 border-b-2 border-slate-900 bg-red-700 px-4 py-3 text-white shadow-lg">
