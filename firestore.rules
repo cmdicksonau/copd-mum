@@ -1,31 +1,27 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // ===============================================================
-    // Assumed Data Model
-    // ===============================================================
-    //
-    // No collections are currently used by this application.
-    // All patient state is stored locally in the browser's localStorage.
-    //
-    // ===============================================================
-
-    // ===============================================================
-    // Helper Functions
-    // ===============================================================
-    //
-    // Check if the user is authenticated
     function isAuthenticated() {
-       return request.auth != null;
+      return request.auth != null;
     }
-    
-    // Check if user owns the resource
+
     function isOwner(userId) {
-       return isAuthenticated() && request.auth.uid == userId;
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    match /users/{userId}/settings/{documentId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    match /users/{userId}/episodes/{episodeId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    match /users/{userId}/escalations/{escalationId} {
+      allow read, write: if isOwner(userId);
     }
 
     match /{document=**} {
-      // Deny all read and write requests to secure the database.
       allow read, write: if false;
     }
   }
